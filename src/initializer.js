@@ -1,5 +1,5 @@
 module.exports = function(args) {
-	let credentialPath, path, action
+	let credentialPath, outputPath, path, action
 
 	if(args.includes('-a')) {
 		let choosenCredentialPath = getFlagValue(args, '-a')
@@ -37,17 +37,27 @@ module.exports = function(args) {
 		}
 
 		path = choosenPath
-	} else {
-		path = '/'
 	}
 
 	if(args.includes('-b')) {
+		if(args.includes('-o')) {
+			let choosenOutputPath = getFlagValue(args, '-o')
+
+			if(!choosenOutputPath) {
+				throw new error('The "-o" flag needs to be accompanied by a file path')
+			}
+
+			outputPath = choosenOutputPath
+		} else {
+			throw new Error('You must set a path to the file where you want to save your backup')
+		}
+
 		action = 'BACKUP'
 	} else {
 		action = 'RESTORE'
 	}
 
-	return { credentialPath, path, action }
+	return { credentialPath, outputPath, path, action }
 }
 
 function getFlagValue(args, flag) {

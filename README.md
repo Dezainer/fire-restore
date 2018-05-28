@@ -14,6 +14,7 @@ A backup and restore tool for firestore.
 | Flag | Description | Required | Default |
 | ---- | ----------- | -------- | ------- |
 | -a   | Firebase service account file path | **Y** | - |
-| -b   | Tells the script to run a backup | **Y**(if you're trying to backup) | - |
-| -r   | Tells the script to run a restore | **Y**(if you're trying to restore) | - |
+| -b   | Tells the script to run a backup | **Y**(on backup) | - |
+| -r   | Tells the script to run a restore | **Y**(on restore) | - |
 | -p   | Sets the script to work on a specific collection | **N** | / |
+| -o   | Sets the backup file path | **Y**(on backup) | - |

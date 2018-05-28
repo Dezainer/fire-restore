@@ -1,18 +1,18 @@
 module.exports = function(args) {
-	let credentials, path, action
+	let credentialPath, path, action
 
 	if(args.includes('-a')) {
-		let choosenCredentialsPath = getFlagValue(args, '-a')
+		let choosenCredentialPath = getFlagValue(args, '-a')
 
-		if(!choosenCredentialsPath) {
-			throw new Error('The "-a" flag needs to be accompanied by your credentials file, like "serviceAccount.json"')
+		if(!choosenCredentialPath) {
+			throw new Error('The "-a" flag needs to be accompanied by your credential file, like "serviceAccount.json"')
 		}
 
-		if(!choosenCredentialsPath.includes('.json')) {
-			throw new Error('Insert a valid credentials file to continue')
+		if(!choosenCredentialPath.includes('.json')) {
+			throw new Error('Insert a valid credential file to continue')
 		}
 
-		credentials = require(choosenCredentialsPath)
+		credentialPath = choosenCredentialPath
 	} else {
 		throw new Error('You need to specify your account')
 	}
@@ -47,7 +47,7 @@ module.exports = function(args) {
 		action = 'RESTORE'
 	}
 
-	return { credentials, path, action }
+	return { credentialPath, path, action }
 }
 
 function getFlagValue(args, flag) {

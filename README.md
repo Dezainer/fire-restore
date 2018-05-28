@@ -1,7 +1,7 @@
-#Firewatch
+# Firewatch
 A backup and restore tool for firestore.
 
-#Flags
+# Flags
 | Flag | Description | Required | Default |
 | ---- | ----------- | -------- | ------- |
 | -a   | Firebase service account file path | **Y** | - |

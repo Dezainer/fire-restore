@@ -3,16 +3,21 @@ module.exports = function(db, path) {
 	return scavengeData(initialPath)
 }
 
-function scavengeData(path) {
-	return getCollectionsFromDocument(path).then(collections => {
+function scavengeData(doc) {
+	return getCollectionsFromDocument(doc).then(collections => {
 		let obj = {}
 
 		return collections.length == 0
 			? obj
 			: Promise.all(collections.map(collection =>
-				getCollectionData(collection.ref).then(data => {
-					obj[collection.name] = data.map(doc => doc.data)
-				})
+				getCollectionData(collection.ref).then(data =>
+					Promise.all(data.map(item =>
+						scavengeData(item.ref).then(subData => {
+							let collectionData = data.map(doc => Object.assign(doc.data, subData))
+							obj[collection.name] = collectionData
+						})
+					))
+				)
 			)).then(() => obj)
 	})
 }
@@ -35,7 +40,7 @@ function getCollectionData(collection) {
 		let data = []
 
 		result.forEach(item => data.push({
-			ref: item,
+			ref: item.ref,
 			data: item.data()
 		}))
 

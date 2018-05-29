@@ -1,5 +1,5 @@
 module.exports = function(db, path) {
-	let initialPath = path ? path : db
+	let initialPath = path ? db.doc(path) : db
 	return scavengeData(initialPath)
 }
 
@@ -10,14 +10,15 @@ function scavengeData(doc) {
 		return collections.length == 0
 			? obj
 			: Promise.all(collections.map(collection =>
-				getCollectionData(collection.ref).then(data =>
-					Promise.all(data.map(item =>
-						scavengeData(item.ref).then(subData => {
-							let collectionData = data.map(doc => Object.assign(doc.data, subData))
-							obj[collection.name] = collectionData
+				getCollectionData(collection.ref).then(colData => {
+					obj[collection.name] = {}
+
+					return Promise.all(colData.map(doc =>
+						scavengeData(doc.ref).then(subData => {
+							obj[collection.name][doc.key] = Object.assign(subData, doc.data)
 						})
 					))
-				)
+				})
 			)).then(() => obj)
 	})
 }
@@ -40,6 +41,7 @@ function getCollectionData(collection) {
 		let data = []
 
 		result.forEach(item => data.push({
+			key: item.id,
 			ref: item.ref,
 			data: item.data()
 		}))

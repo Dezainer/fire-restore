@@ -23,7 +23,7 @@ function scavengeDoc(doc) {
 }
 
 function getDocumentCollections(doc) {
-	return doc.getCollections().then(data => formatData(data))
+	return doc.getCollections().then(data => Util.formatData(data))
 }
 
 function scavengeCollection(collection) {
@@ -41,12 +41,5 @@ function scavengeCollection(collection) {
 }
 
 function getCollectionData(collection) {
-	return collection.get().then(data => formatData(data))
-}
-
-function formatData(data) {
-	let formated = []
-
-	data.forEach(item => formated.push(item))
-	return formated
+	return collection.get().then(data => Util.formatData(data))
 }

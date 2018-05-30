@@ -10,3 +10,10 @@ exports.isPathDocOrCollection = function(db, path) {
 
 	return type
 }
+
+exports.formatData = function(data) {
+	let formated = []
+
+	data.forEach(item => formated.push(item))
+	return formated
+}

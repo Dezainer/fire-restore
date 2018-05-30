@@ -8,14 +8,14 @@ function scavengeData(doc) {
 		let obj = {}
 
 		return collections.length == 0
-			? obj
+			? doc.get().then(result => result.data())
 			: Promise.all(collections.map(collection =>
 				getCollectionData(collection.ref).then(colData => {
 					obj[collection.name] = {}
 
 					return Promise.all(colData.map(doc =>
 						scavengeData(doc.ref).then(subData => {
-							obj[collection.name][doc.key] = Object.assign(subData, doc.data)
+							obj[collection.name][doc.key] = Object.assign(doc.data, subData)
 						})
 					))
 				})

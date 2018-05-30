@@ -10,42 +10,34 @@ function scavengeData(doc) {
 		return collections.length == 0
 			? doc.get().then(result => result.data())
 			: Promise.all(collections.map(collection =>
-				getCollectionData(collection.ref).then(colData => {
-					obj[collection.name] = {}
-
-					return Promise.all(colData.map(doc =>
-						scavengeData(doc.ref).then(subData => {
-							obj[collection.name][doc.key] = Object.assign(doc.data, subData)
-						})
-					))
-				})
+				getCollectionSubData(obj, doc, collection)
 			)).then(() => obj)
 	})
 }
 
-function getCollectionsFromDocument(doc) {
-	return doc.getCollections().then(result => {
-		let collections = []
+function getCollectionSubData(obj, doc, collection) {
+	return getCollectionData(collection).then(colData => {
+		obj[collection.id] = {}
 
-		result.map(item => collections.push({
-			name: item.id,
-			ref: item
-		}))
-
-		return collections
+		return Promise.all(colData.map(doc =>
+			scavengeData(doc.ref).then(subData => {
+				obj[collection.id][doc.id] = Object.assign(doc.data(), subData)
+			})
+		))
 	})
 }
 
+function getCollectionsFromDocument(doc) {
+	return doc.getCollections().then(data => formatData(data))
+}
+
 function getCollectionData(collection) {
-	return collection.get().then(result => {
-		let data = []
+	return collection.get().then(data => formatData(data))
+}
 
-		result.forEach(item => data.push({
-			key: item.id,
-			ref: item.ref,
-			data: item.data()
-		}))
+function formatData(data) {
+	let formated = []
 
-		return data
-	})
+	data.forEach(item => formated.push(item))
+	return formated
 }

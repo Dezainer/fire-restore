@@ -8,5 +8,8 @@ module.exports = function(credentialPath) {
 		databaseUrl: `https://${ credential.project_id }.firebaseio.com`
 	})
 
-	return admin.firestore()
+	return {
+		connection: admin.firestore(),
+		project: credential.project_id
+	}
 }

@@ -34,10 +34,20 @@ function scavengeCollection(collection) {
 			? obj
 			: Promise.all(colData.map(doc =>
 				scavengeDoc(doc.ref).then(subData => {
-					obj[doc.id] = Object.assign(doc.data(), subData)
+					obj[doc.id] = arrangeDocData(doc.data(), subData)
 				})
 			)).then(() => obj)
 	})
+}
+
+function arrangeDocData(data, subData) {
+	let arranged = {}
+	arranged.__FIELDS__ = data
+
+	if(!Util.areObjectsEqual(data, subData))
+		arranged.__COLLECTIONS__ = subData
+
+	return arranged
 }
 
 function getCollectionData(collection) {

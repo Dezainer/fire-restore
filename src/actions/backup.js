@@ -1,10 +1,15 @@
+const Util = require('../util')
+
 module.exports = function(db, path) {
-	let initialPath = path ? db.doc(path) : db
-	return scavengeDoc(initialPath)
+	return path
+		? Util.isPathDocOrCollection(db, path) == 'DOCUMENT'
+			? scavengeDoc(db.doc(path))
+			: scavengeCollection(db.collection(path))
+		: scavengeDoc(db)
 }
 
 function scavengeDoc(doc) {
-	return getCollectionsFromDocument(doc).then(collections => {
+	return getDocumentCollections(doc).then(collections => {
 		let obj = {}
 
 		return collections.length == 0
@@ -17,7 +22,7 @@ function scavengeDoc(doc) {
 	})
 }
 
-function getCollectionsFromDocument(doc) {
+function getDocumentCollections(doc) {
 	return doc.getCollections().then(data => formatData(data))
 }
 

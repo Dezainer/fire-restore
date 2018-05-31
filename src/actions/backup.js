@@ -8,15 +8,15 @@ module.exports = function(db, path) {
 		: scavengeDoc(db)
 }
 
-function scavengeDoc(doc) {
+function scavengeDoc(doc, fieldsData) {
 	return getDocumentCollections(doc).then(collections => {
 		let obj = {}
 
-		return getDocumentData(doc).then(data => {
-			if(data) obj.__FIELDS__ = data
-		}).then(() =>
-			getDocumentCollectionsData(collections).then((data) => {
-				if(data) obj.__COLLECTIONS__ = data
+		return getDocumentCollectionsData(collections).then((data) => {
+			if(data) obj.__COLLECTIONS__ = data
+		}).then(() => 
+			getDocumentData(doc, fieldsData).then(data => {
+				if(data) obj.__FIELDS__ = data
 			})
 		).then(() => obj)
 	})
@@ -26,26 +26,24 @@ function getDocumentCollections(doc) {
 	return doc.getCollections().then(data => Util.formatData(data))
 }
 
-function getDocumentData(doc) {
-	return new Promise((resolve, reject) => {
-		doc.get
-			? doc.get().then(result => resolve(result.data()))
-			: resolve()
-	})
+function getDocumentCollectionsData(collections, callback) {
+	let obj = {}
+
+	return collections.length == 0
+		? new Promise((resolve, reject) => resolve())
+		: Promise.all(collections.map(collection =>
+			scavengeCollection(collection).then(subData => {
+				obj[collection.id] = subData
+			})
+		)).then(() => obj)
 }
 
-function getDocumentCollectionsData(collections, callback) {
-	return new Promise((resolve, reject) => {
-		let obj = {}
-
-		collections.length == 0
-			? resolve()
-			: Promise.all(collections.map(collection =>
-				scavengeCollection(collection).then(subData => {
-					obj[collection.id] = subData
-				})
-			)).then(() => resolve(obj))
-	})
+function getDocumentData(doc, data) {
+	return data 
+		? new Promise((resolve, reject) => resolve(data))
+		: doc.get
+			? doc.get().then(result => result.data())
+			: new Promise((resolve, reject) => resolve())
 }
 
 function scavengeCollection(collection) {
@@ -55,7 +53,7 @@ function scavengeCollection(collection) {
 		return colData.length == 0
 			? obj
 			: Promise.all(colData.map(doc =>
-				scavengeDoc(doc.ref).then(subData => {
+				scavengeDoc(doc.ref, doc.data()).then(subData => {
 					obj[doc.id] = subData
 				})
 			)).then(() => obj)

@@ -37,11 +37,11 @@ if(settings.action == 'BACKUP')
 if(settings.action == 'RESTORE') {
 	try {
 		let backup = require(settings.outputPath)
+
+		restore(firestore, settings.path, backup)
+			.then(msg => Util.logSuccess('RESTORE'))
+			.catch(err => Util.logError('RESTORE', err))
 	} catch(err) {
 		return Util.logError('READING', err)
 	}
-
-	restore(firestore, settings.path, backup)
-		.then(msg => Util.logSuccess('RESTORE', msg))
-		.catch(err => Util.logError('RESTORE', err))
 }

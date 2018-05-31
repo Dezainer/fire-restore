@@ -31,5 +31,5 @@ exports.logError = function(label, err) {
 }
 
 exports.mapObject = function(obj, callback) {
-	Object.keys(obj).map((item, key) => callback(item, key))
+	Object.keys(obj).map(key => callback(obj[key], key))
 }

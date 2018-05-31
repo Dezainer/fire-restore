@@ -1,7 +1,7 @@
 const initialize = require('./src/initializer')
 const ignite = require('./src/igniter')
-const write = require('./src/writer')
-const Util = require('./src/util')
+const write = require('./src/helpers/writer')
+const Util = require('./src/helpers/util')
 
 const backup = require('./src/actions/backup')
 const restore = require('./src/actions/restore')
@@ -35,13 +35,16 @@ if(settings.action == 'BACKUP')
 		.catch(err => Util.logError('BACKUP', err))
 
 if(settings.action == 'RESTORE') {
-	try {
-		let backup = require(settings.outputPath)
+	let backup
 
-		restore(firestore, settings.path, backup)
-			.then(msg => Util.logSuccess('RESTORE'))
-			.catch(err => Util.logError('RESTORE', err))
+	try {
+		backup = require(settings.outputPath)
+		Util.logSuccess('READING')
 	} catch(err) {
 		return Util.logError('READING', err)
 	}
+
+	restore(firestore, settings.path, backup)
+			.then(msg => Util.logSuccess('RESTORE'))
+			.catch(err => Util.logError('RESTORE', err))
 }

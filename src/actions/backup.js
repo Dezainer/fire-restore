@@ -1,4 +1,4 @@
-const Util = require('../util')
+const Util = require('../helpers/util')
 
 module.exports = function(db, path) {
 	return path

@@ -1,8 +1,8 @@
-const Util = require('../util')
-var batch
+const Util = require('../helpers/util')
+const Batch = require('../helpers/batch')
 
 module.exports = function(db, path, obj) {
-	batch = db.batch()
+	Batch.start(db)
 
 	path
 		? Util.isPathDocOrCollection(db, path) == 'DOCUMENT'
@@ -10,12 +10,12 @@ module.exports = function(db, path, obj) {
 			: populateCollection(db.collection(path), obj)
 		: populateDoc(db, obj)
 
-	return batch.commit()
+	return Batch.commit()
 }
 
 function populateDoc(ref, doc) {
 	if(doc.__FIELDS__)
-		batch.set(ref, doc.__FIELDS__)
+		Batch.set(ref, doc.__FIELDS__)
 
 	if(doc.__COLLECTIONS__)
 		Util.mapObject(doc.__COLLECTIONS__, (collection, colKey) => {

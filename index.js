@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const initialize = require('./src/initializer')
 const ignite = require('./src/igniter')
 const write = require('./src/helpers/writer')
@@ -25,7 +27,7 @@ try {
 }
 
 if(settings.action == 'BACKUP')
-	backup(firestore, settings.path)
+	return backup(firestore, settings.path)
 		.then(result => {
 			Util.logSuccess('BACKUP')
 			write(result, settings.outputPath)
@@ -44,7 +46,7 @@ if(settings.action == 'RESTORE') {
 		return Util.logError('READING', err)
 	}
 
-	restore(firestore, settings.path, backup)
+	return restore(firestore, settings.path, backup)
 			.then(msg => Util.logSuccess('RESTORE'))
 			.catch(err => Util.logError('RESTORE', err))
 }

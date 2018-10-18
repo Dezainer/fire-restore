@@ -30,7 +30,7 @@ if(settings.action == 'BACKUP')
 	return backup(firestore, settings.path)
 		.then(result => {
 			Util.logSuccess('BACKUP')
-			write(result, settings.outputPath)
+			return write(result, settings.outputPath)
 				.then(msg => Util.logSuccess('WRITING', msg))
 				.catch(err => Util.logError('WRITING', err))
 		})

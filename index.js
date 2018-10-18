@@ -1,47 +1,52 @@
+#!/usr/bin/env node
+
 const initialize = require('./src/initializer')
 const ignite = require('./src/igniter')
-const write = require('./src/writer')
+const write = require('./src/helpers/writer')
+const Util = require('./src/helpers/util')
 
 const backup = require('./src/actions/backup')
 const restore = require('./src/actions/restore')
 
-let args = process.argv.slice(2), 
-	settings, 
-	firestore
+let args = process.argv.slice(2), settings, firestore
 
 try {
 	settings = initialize(args)
-	logSuccess('INITIALIZATION')
+	Util.logSuccess('INITIALIZATION')
 } catch(err) {
-	return logError('INITIALIZATION', err)
+	return Util.logError('INITIALIZATION', err)
 }
 
 try {
-	firestore = ignite(settings.credentialPath)
-	logSuccess('CONNECTION')
+	let fire = ignite(settings.credentialPath)
+	firestore = fire.connection
+
+	Util.logSuccess('CONNECTION', `Connected on: ${ fire.project }`)
 } catch(err) {
-	return logError('CONNECTION', err)
+	return Util.logError('CONNECTION', err)
 }
 
-if(settings.action == 'BACKUP') {
-	backup(firestore, settings.path)
+if(settings.action == 'BACKUP')
+	return backup(firestore, settings.path)
 		.then(result => {
-			logSuccess('BACKUP')
-			write(result, settings.outputPath)
-				.then(msg => logSuccess('WRITING', msg))
-				.catch(err => logError('WRITING', err))
+			Util.logSuccess('BACKUP')
+			return write(result, settings.outputPath)
+				.then(msg => Util.logSuccess('WRITING', msg))
+				.catch(err => Util.logError('WRITING', err))
 		})
-		.catch(err => logError('BACKUP', err))
-}
+		.catch(err => Util.logError('BACKUP', err))
 
-function logSuccess(label, msg) {
-	console.log('\x1b[32m', `- ${ label.toUpperCase() } SUCCEEDED`)
-	msg && console.log(` - ${ msg }`)
-	return console.log('\x1b[0m')
-}
+if(settings.action == 'RESTORE') {
+	let backup
 
-function logError(label, err) {
-	console.log('\x1b[31m', `- ${ label.toUpperCase() } ERROR`)
-	console.log(` - ${ err.message }`)
-	return console.log('\x1b[0m')
+	try {
+		backup = require(settings.outputPath)
+		Util.logSuccess('READING')
+	} catch(err) {
+		return Util.logError('READING', err)
+	}
+
+	return restore(firestore, settings.path, backup)
+			.then(msg => Util.logSuccess('RESTORE'))
+			.catch(err => Util.logError('RESTORE', err))
 }
